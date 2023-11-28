@@ -185,6 +185,14 @@ class WolfSheepGrassModel:
         else:
             self.sheep_pointer = live_sheep[-1] + 1
 
+    def kill_random_sheep(self):
+        if self.num_sheep > 0:
+            sheep_idx = np.random.choice(np.where(self.sheep_alive))
+            self.sheep_alive[sheep_idx] = False
+            self.num_sheep -= 1
+        else:
+            raise RuntimeError("No sheep to kill")
+
     def wolves_die(self):
         np.logical_and(self.wolf_alive, self.wolf_energy >= 0.0, out=self.wolf_alive)
         self.num_wolves = int(np.sum(self.wolf_alive))
@@ -193,6 +201,14 @@ class WolfSheepGrassModel:
             self.wolf_pointer = 0
         else:
             self.wolf_pointer = live_wolves[-1] + 1
+
+    def kill_random_wolf(self):
+        if self.num_wolves > 0:
+            wolf_idx = np.random.choice(np.where(self.wolf_alive))
+            self.wolf_alive[wolf_idx] = False
+            self.num_wolves -= 1
+        else:
+            raise RuntimeError("No wolves to kill")
 
     def sheep_reproduce(self):
         reproduce = np.logical_and(
@@ -226,6 +242,26 @@ class WolfSheepGrassModel:
         self.grass_clock -= 1
         self.grass_clock[self.grass] = 0
         self.grass[:] = self.grass_clock <= 0
+
+    def spawn_grass(self):
+        non_grass_rows, non_grass_cols = np.where(np.logical_not(self.grass))
+        if len(non_grass_rows) > 0:
+            r = np.random.randint(len(non_grass_rows))
+            row, col = non_grass_rows[r], non_grass_cols[r]
+            self.grass[row, col] = True
+            self.grass_clock[row, col] = 0
+        else:
+            raise RuntimeError("No room for more grass")
+
+    def kill_random_grass(self):
+        grass_rows, grass_cols = np.where(self.grass)
+        if len(grass_rows) > 0:
+            r = np.random.randint(len(grass_rows))
+            row, col = grass_rows[r], grass_cols[r]
+            self.grass[row, col] = False
+            self.grass_clock[row, col] = self.GRASS_REGROWTH_TIME
+        else:
+            raise RuntimeError("No grass to kill")
 
     def time_step(self):
         # sheep

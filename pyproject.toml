@@ -16,6 +16,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  "attrs",
+  "numpy",
+]
 
 [project.urls]
 Homepage = "https://github.com/knappa/wolf-sheep-grass"

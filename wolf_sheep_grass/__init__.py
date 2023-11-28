@@ -187,7 +187,7 @@ class WolfSheepGrassModel:
 
     def kill_random_sheep(self):
         if self.num_sheep > 0:
-            sheep_idx = np.random.choice(np.where(self.sheep_alive))
+            sheep_idx = np.random.choice(np.where(self.sheep_alive)[0])
             self.sheep_alive[sheep_idx] = False
             self.num_sheep -= 1
         else:
@@ -204,7 +204,7 @@ class WolfSheepGrassModel:
 
     def kill_random_wolf(self):
         if self.num_wolves > 0:
-            wolf_idx = np.random.choice(np.where(self.wolf_alive))
+            wolf_idx = np.random.choice(np.where(self.wolf_alive)[0])
             self.wolf_alive[wolf_idx] = False
             self.num_wolves -= 1
         else:

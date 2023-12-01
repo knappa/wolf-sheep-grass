@@ -7,8 +7,9 @@ class WolfSheepGrassModel:
     GRID_WIDTH: int = field()
     GRID_HEIGHT: int = field()
 
-    MAX_WOLVES: int = field(default=10_000)
+    MAX_WOLVES: int = field(default=1_000)
     MAX_SHEEP: int = field(default=1_000)
+    EXPAND_ARRAYS: bool = field(default=True)
 
     INIT_WOLVES: int = field()  # 0..250
     WOLF_GAIN_FROM_FOOD: float = field()  # 0..100
@@ -87,10 +88,12 @@ class WolfSheepGrassModel:
             self.compact_wolf_arrays()
             # maybe the array is already compacted:
             if self.wolf_pointer >= self.MAX_WOLVES:
-                self.__expand_wolf_array()
-                # raise RuntimeError(
-                #     "Max wolves exceeded, you may want to change the MAX_WOLVES parameter."
-                # )
+                if self.EXPAND_ARRAYS:
+                    self.__expand_wolf_array()
+                else:
+                    raise RuntimeError(
+                        "Max wolves exceeded, you may want to change the MAX_WOLVES parameter."
+                    )
         if pos is None:
             self.wolf_pos[self.wolf_pointer, 0] = self.GRID_WIDTH * np.random.rand()
             self.wolf_pos[self.wolf_pointer, 1] = self.GRID_HEIGHT * np.random.rand()
@@ -142,10 +145,12 @@ class WolfSheepGrassModel:
             self.compact_sheep_arrays()
             # maybe the array is already compacted:
             if self.sheep_pointer >= self.MAX_SHEEP:
-                self.__expand_sheep_array()
-                # raise RuntimeError(
-                #     "Max sheep exceeded, you may want to change the MAX_SHEEP parameter."
-                # )
+                if self.EXPAND_ARRAYS:
+                    self.__expand_sheep_array()
+                else:
+                    raise RuntimeError(
+                        "Max sheep exceeded, you may want to change the MAX_SHEEP parameter."
+                    )
         if pos is None:
             self.sheep_pos[self.sheep_pointer, 0] = self.GRID_WIDTH * np.random.rand()
             self.sheep_pos[self.sheep_pointer, 1] = self.GRID_HEIGHT * np.random.rand()

@@ -8,7 +8,7 @@ class WolfSheepGrassModel:
     GRID_HEIGHT: int = field()
 
     MAX_WOLVES: int = field(default=10_000)
-    MAX_SHEEP: int = field(default=10_000)
+    MAX_SHEEP: int = field(default=1_000)
 
     INIT_WOLVES: int = field()  # 0..250
     WOLF_GAIN_FROM_FOOD: float = field()  # 0..100
@@ -87,9 +87,10 @@ class WolfSheepGrassModel:
             self.compact_wolf_arrays()
             # maybe the array is already compacted:
             if self.wolf_pointer >= self.MAX_WOLVES:
-                raise RuntimeError(
-                    "Max wolves exceeded, you may want to change the MAX_WOLVES parameter."
-                )
+                self.__expand_wolf_array()
+                # raise RuntimeError(
+                #     "Max wolves exceeded, you may want to change the MAX_WOLVES parameter."
+                # )
         if pos is None:
             self.wolf_pos[self.wolf_pointer, 0] = self.GRID_WIDTH * np.random.rand()
             self.wolf_pos[self.wolf_pointer, 1] = self.GRID_HEIGHT * np.random.rand()
@@ -106,14 +107,45 @@ class WolfSheepGrassModel:
         self.num_wolves += 1
         self.wolf_pointer += 1
 
+    def __expand_wolf_array(self):
+        old_max_wolves = self.MAX_WOLVES
+        self.MAX_WOLVES *= 2
+
+        self.wolf_pos = np.pad(
+            self.wolf_pos,
+            pad_width=np.array(((0, old_max_wolves), (0, 0))),
+            mode="constant",
+            constant_values=(0, 0),
+        )
+        self.wolf_dir = np.pad(
+            self.wolf_dir,
+            pad_width=np.array((0, old_max_wolves)),
+            mode="constant",
+            constant_values=0.0,
+        )
+        self.wolf_energy = np.pad(
+            self.wolf_energy,
+            pad_width=np.array((0, old_max_wolves)),
+            mode="constant",
+            constant_values=0,
+        )
+        self.wolf_alive = np.pad(
+            self.wolf_alive,
+            pad_width=np.array((0, old_max_wolves)),
+            mode="constant",
+            constant_values=False,
+        )
+
+
     def create_sheep(self, pos=None, energy=None):
         if self.sheep_pointer >= self.MAX_SHEEP:
             self.compact_sheep_arrays()
             # maybe the array is already compacted:
             if self.sheep_pointer >= self.MAX_SHEEP:
-                raise RuntimeError(
-                    "Max sheep exceeded, you may want to change the MAX_SHEEP parameter."
-                )
+                self.__expand_sheep_array()
+                # raise RuntimeError(
+                #     "Max sheep exceeded, you may want to change the MAX_SHEEP parameter."
+                # )
         if pos is None:
             self.sheep_pos[self.sheep_pointer, 0] = self.GRID_WIDTH * np.random.rand()
             self.sheep_pos[self.sheep_pointer, 1] = self.GRID_HEIGHT * np.random.rand()
@@ -129,6 +161,35 @@ class WolfSheepGrassModel:
         self.sheep_alive[self.sheep_pointer] = True
         self.num_sheep += 1
         self.sheep_pointer += 1
+
+    def __expand_sheep_array(self):
+        old_max_sheep = self.MAX_SHEEP
+        self.MAX_SHEEP *= 2
+
+        self.sheep_pos = np.pad(
+            self.sheep_pos,
+            pad_width=np.array(((0, old_max_sheep), (0, 0))),
+            mode="constant",
+            constant_values=(0, 0),
+        )
+        self.sheep_dir = np.pad(
+            self.sheep_dir,
+            pad_width=np.array((0, old_max_sheep)),
+            mode="constant",
+            constant_values=0.0,
+        )
+        self.sheep_energy = np.pad(
+            self.sheep_energy,
+            pad_width=np.array((0, old_max_sheep)),
+            mode="constant",
+            constant_values=0,
+        )
+        self.sheep_alive = np.pad(
+            self.sheep_alive,
+            pad_width=np.array((0, old_max_sheep)),
+            mode="constant",
+            constant_values=False,
+        )
 
     def sheep_move(self):
         self.sheep_dir += (2 * np.random.rand(self.MAX_SHEEP) - 1) * 2 * np.pi / 50

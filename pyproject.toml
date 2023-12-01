@@ -24,3 +24,6 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/knappa/wolf-sheep-grass"
 Issues = "https://github.com/knappa/wolf-sheep-grass/issues"
+
+[tool.black]
+line-length = 100

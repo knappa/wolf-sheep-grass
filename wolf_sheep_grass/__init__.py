@@ -139,7 +139,6 @@ class WolfSheepGrassModel:
             constant_values=False,
         )
 
-
     def create_sheep(self, pos=None, energy=None):
         if self.sheep_pointer >= self.MAX_SHEEP:
             self.compact_sheep_arrays()

@@ -54,10 +54,7 @@ class WolfSheepGrassModel:
         self.sheep_energy = np.zeros(self.MAX_SHEEP, dtype=np.float64)
         self.sheep_alive = np.zeros(self.MAX_SHEEP, dtype=bool)
 
-        self.grass = (
-            np.random.rand(self.GRID_WIDTH, self.GRID_HEIGHT)
-            < self.INIT_GRASS_PROPORTION
-        )
+        self.grass = np.random.rand(self.GRID_WIDTH, self.GRID_HEIGHT) < self.INIT_GRASS_PROPORTION
         self.grass_clock = self.GRASS_REGROWTH_TIME * np.random.rand(
             self.GRID_WIDTH, self.GRID_HEIGHT
         )
@@ -101,9 +98,7 @@ class WolfSheepGrassModel:
             self.wolf_pos[self.wolf_pointer] = pos
         self.wolf_dir[self.wolf_pointer] = 2 * np.pi * np.random.rand()
         if energy is None:
-            self.wolf_energy[self.wolf_pointer] = (
-                2 * self.WOLF_GAIN_FROM_FOOD * np.random.rand()
-            )
+            self.wolf_energy[self.wolf_pointer] = 2 * self.WOLF_GAIN_FROM_FOOD * np.random.rand()
         else:
             self.wolf_energy[self.wolf_pointer] = energy
         self.wolf_alive[self.wolf_pointer] = True
@@ -157,9 +152,7 @@ class WolfSheepGrassModel:
             self.sheep_pos[self.sheep_pointer] = pos
         self.sheep_dir[self.sheep_pointer] = 2 * np.pi * np.random.rand()
         if energy is None:
-            self.sheep_energy[self.sheep_pointer] = (
-                2 * self.SHEEP_GAIN_FROM_FOOD * np.random.rand()
-            )
+            self.sheep_energy[self.sheep_pointer] = 2 * self.SHEEP_GAIN_FROM_FOOD * np.random.rand()
         else:
             self.sheep_energy[self.sheep_pointer] = energy
         self.sheep_alive[self.sheep_pointer] = True
@@ -285,9 +278,7 @@ class WolfSheepGrassModel:
         reproducing_sheep_energy = np.copy(self.sheep_energy[reproduce])
 
         for idx in range(np.sum(reproduce)):
-            self.create_sheep(
-                pos=reproducing_sheep_pos[idx], energy=reproducing_sheep_energy[idx]
-            )
+            self.create_sheep(pos=reproducing_sheep_pos[idx], energy=reproducing_sheep_energy[idx])
 
     def wolves_reproduce(self):
         reproduce = np.logical_and(
@@ -299,9 +290,7 @@ class WolfSheepGrassModel:
         reproducing_wolf_energy = np.copy(self.wolf_energy[reproduce])
 
         for idx in range(np.sum(reproduce)):
-            self.create_wolf(
-                pos=reproducing_wolf_pos[idx], energy=reproducing_wolf_energy[idx]
-            )
+            self.create_wolf(pos=reproducing_wolf_pos[idx], energy=reproducing_wolf_energy[idx])
 
     def grow_grass(self):
         self.grass_clock -= 1

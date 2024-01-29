@@ -29,4 +29,5 @@ The model is advanced forward in time using `model.time_step()`. Classic usage w
 * `model.wolf_pos` / `model.sheep_pos`
 * `model.wolf_dir` / `model.sheep_dir`
 * `model.wolf_energy` / `model.sheep_energy`
+
 each of which should be masked by the boolean arrays `model.wolf_alive` or `model.sheep_alive`.

@@ -8,8 +8,7 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - given-names: Adam
-    name-particle: C
+  - given-names: "A. C."
     family-names: Knapp
     email: adam.knapp@medicine.ufl.edu
     affiliation: University of Florida

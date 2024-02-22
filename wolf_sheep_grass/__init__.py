@@ -30,14 +30,82 @@ class WolfSheepGrassModel:
     wolf_dir: np.ndarray = field(init=False)
     wolf_energy: np.ndarray = field(init=False)
     wolf_alive: np.ndarray = field(init=False)
-    wolf_pointer: int = field(init=False)  # all indices >= this are not alive
+    wolf_pointer: int = field(init=False)  # all (indices >= this) are not alive
 
     num_sheep: int = field(init=False)
     sheep_pos: np.ndarray = field(init=False)
     sheep_dir: np.ndarray = field(init=False)
     sheep_energy: np.ndarray = field(init=False)
     sheep_alive: np.ndarray = field(init=False)
-    sheep_pointer: int = field(init=False)  # all indices >= this are not alive
+    sheep_pointer: int = field(init=False)  # all (indices >= this) are not alive
+
+    ################################################################################
+
+    @property
+    def wolf_mean_pos(self) -> np.ndarray:
+        return np.mean(self.wolf_pos[self.wolf_alive], axis=0)
+
+    @property
+    def wolf_var_pos(self) -> np.ndarray:
+        return np.cov(self.wolf_pos[self.wolf_alive])
+
+    @property
+    def wolf_mean_vel(self) -> np.ndarray:
+        directions = np.stack(
+            [np.cos(self.wolf_dir[self.wolf_alive]), np.sin(self.wolf_dir[self.wolf_alive])], axis=1
+        )
+        return np.mean(directions, axis=0)
+
+    @property
+    def wolf_var_vel(self) -> np.ndarray:
+        directions = np.stack(
+            [np.cos(self.wolf_dir[self.wolf_alive]), np.sin(self.wolf_dir[self.wolf_alive])], axis=1
+        )
+        return np.cov(directions)
+
+    @property
+    def wolf_mean_energy(self) -> float:
+        return float(np.mean(self.wolf_energy[self.wolf_alive]))
+
+    @property
+    def wolf_var_energy(self) -> float:
+        return float(np.var(self.wolf_energy[self.wolf_alive]))
+
+    ################################################################################
+
+    @property
+    def sheep_mean_pos(self) -> np.ndarray:
+        return np.mean(self.sheep_pos[self.sheep_alive], axis=0)
+
+    @property
+    def sheep_var_pos(self) -> np.ndarray:
+        return np.cov(self.sheep_pos[self.sheep_alive])
+
+    @property
+    def sheep_mean_vel(self) -> np.ndarray:
+        directions = np.stack(
+            [np.cos(self.sheep_dir[self.sheep_alive]), np.sin(self.sheep_dir[self.sheep_alive])],
+            axis=1,
+        )
+        return np.mean(directions, axis=0)
+
+    @property
+    def sheep_var_vel(self) -> np.ndarray:
+        directions = np.stack(
+            [np.cos(self.sheep_dir[self.sheep_alive]), np.sin(self.sheep_dir[self.sheep_alive])],
+            axis=1,
+        )
+        return np.cov(directions)
+
+    @property
+    def sheep_mean_energy(self) -> float:
+        return float(np.mean(self.sheep_energy[self.sheep_alive]))
+
+    @property
+    def sheep_var_energy(self) -> float:
+        return float(np.var(self.sheep_energy[self.sheep_alive]))
+
+    ################################################################################
 
     def __attrs_post_init__(self):
         self.num_wolves = 0

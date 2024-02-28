@@ -92,9 +92,19 @@ def main():
     # run the simulator
     try:
         tick = 0
-        print(f"time,number of wolves, number of sheep, number of grass", file=file)
+        print(f"time, "
+              "number of wolves, "
+              "wolf mean energy, wolf var energy, "
+              "number of sheep, "
+              "sheep mean energy, sheep var energy, "
+              "number of grass", file=file)
         print(
-            f"{tick},{model.num_wolves},{model.num_sheep},{np.sum(model.grass)}",
+            f"{tick},"
+            f"{model.num_wolves},"
+            f"{model.wolf_mean_energy},{model.wolf_var_energy},"
+            f"{model.num_sheep},"
+            f"{model.sheep_mean_energy},{model.sheep_var_energy},"
+            f"{np.sum(model.grass)}",
             file=file,
         )
 
@@ -112,7 +122,12 @@ def main():
                 model.compact_wolf_arrays()
 
             print(
-                f"{tick},{model.num_wolves},{model.num_sheep},{np.sum(model.grass)}",
+                f"{tick},"
+                f"{model.num_wolves},"
+                f"{model.wolf_mean_energy},{model.wolf_var_energy},"
+                f"{model.num_sheep},"
+                f"{model.sheep_mean_energy},{model.sheep_var_energy},"
+                f"{np.sum(model.grass)}",
                 file=file,
             )
     finally:

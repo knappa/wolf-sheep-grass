@@ -132,7 +132,13 @@ class WolfSheepGrassModel:
         for _ in range(self.INIT_WOLVES):
             self.create_wolf()
 
-    def compact_wolf_arrays(self):
+    def _compact_wolf_arrays(self):
+        """
+        Internal. Moves all living wolves to the start of the arrays so that there
+        is room at the end of the array.
+
+        :return: None
+        """
         self.wolf_pos[: self.num_wolves] = self.wolf_pos[self.wolf_alive]
         self.wolf_dir[: self.num_wolves] = self.wolf_dir[self.wolf_alive]
         self.wolf_energy[: self.num_wolves] = self.wolf_energy[self.wolf_alive]
@@ -140,7 +146,13 @@ class WolfSheepGrassModel:
         self.wolf_alive[self.num_wolves :] = False
         self.wolf_pointer = self.num_wolves
 
-    def compact_sheep_arrays(self):
+    def _compact_sheep_arrays(self):
+        """
+        Internal. Moves all living sheep to the start of the arrays so that there
+        is room at the end of the array.
+
+        :return: None
+        """
         self.sheep_pos[: self.num_sheep] = self.sheep_pos[self.sheep_alive]
         self.sheep_dir[: self.num_sheep] = self.sheep_dir[self.sheep_alive]
         self.sheep_energy[: self.num_sheep] = self.sheep_energy[self.sheep_alive]
@@ -149,8 +161,16 @@ class WolfSheepGrassModel:
         self.sheep_pointer = self.num_sheep
 
     def create_wolf(self, pos=None, energy=None):
+        """
+        Create a new wolf.
+
+        :param pos: position of wolf (2-dimensional, validity is unchecked),
+            if not present a random position is chosen
+        :param energy: energy of wolf, if not present a random energy is chosen
+        :return:
+        """
         if self.wolf_pointer >= self.MAX_WOLVES:
-            self.compact_wolf_arrays()
+            self._compact_wolf_arrays()
             # maybe the array is already compacted:
             if self.wolf_pointer >= self.MAX_WOLVES:
                 if self.EXPAND_ARRAYS:
@@ -174,6 +194,10 @@ class WolfSheepGrassModel:
         self.wolf_pointer += 1
 
     def __expand_wolf_array(self):
+        """
+        Internal. Makes the wolf arrays larger, if you need more wolves than were pre-allocated
+        :return:
+        """
         old_max_wolves = self.MAX_WOLVES
         self.MAX_WOLVES *= 2
 
@@ -203,8 +227,16 @@ class WolfSheepGrassModel:
         )
 
     def create_sheep(self, pos=None, energy=None):
+        """
+        Create a new sheep.
+
+        :param pos: position of sheep (2-dimensional, validity is unchecked),
+            if not present a random position is chosen
+        :param energy: energy of sheep, if not present a random energy is chosen
+        :return:
+        """
         if self.sheep_pointer >= self.MAX_SHEEP:
-            self.compact_sheep_arrays()
+            self._compact_sheep_arrays()
             # maybe the array is already compacted:
             if self.sheep_pointer >= self.MAX_SHEEP:
                 if self.EXPAND_ARRAYS:
@@ -228,6 +260,10 @@ class WolfSheepGrassModel:
         self.sheep_pointer += 1
 
     def __expand_sheep_array(self):
+        """
+        Internal. Makes the sheep arrays larger, if you need more sheep than were pre-allocated
+        :return:
+        """
         old_max_sheep = self.MAX_SHEEP
         self.MAX_SHEEP *= 2
 
@@ -257,6 +293,10 @@ class WolfSheepGrassModel:
         )
 
     def sheep_move(self):
+        """
+        Movement algorithm for sheep. First a random turn from previous heading, then unit movement in that direction.
+        :return: None
+        """
         self.sheep_dir += (2 * np.random.rand(self.MAX_SHEEP) - 1) * 2 * np.pi / 50
         directions = np.stack([np.cos(self.sheep_dir), np.sin(self.sheep_dir)], axis=1)
         self.sheep_pos += directions
@@ -264,6 +304,10 @@ class WolfSheepGrassModel:
         self.sheep_pos[:, 1] = self.sheep_pos[:, 1] % self.GRID_HEIGHT
 
     def wolves_move(self):
+        """
+        Movement algorithm for wolves. First a random turn from previous heading, then unit movement in that direction.
+        :return: None
+        """
         self.wolf_dir += (2 * np.random.rand(self.MAX_WOLVES) - 1) * 2 * np.pi / 50
         directions = np.stack([np.cos(self.wolf_dir), np.sin(self.wolf_dir)], axis=1)
         self.wolf_pos += directions
@@ -271,6 +315,10 @@ class WolfSheepGrassModel:
         self.wolf_pos[:, 1] = self.wolf_pos[:, 1] % self.GRID_HEIGHT
 
     def sheep_eat_grass(self):
+        """
+        Algorithm for sheep's grass consumption. They consume grass when in the same patch as live grass.
+        :return:
+        """
         for idx in range(self.sheep_pointer):
             if not self.sheep_alive[idx]:
                 continue
@@ -282,6 +330,10 @@ class WolfSheepGrassModel:
                 self.grass_clock[x, y] = self.GRASS_REGROWTH_TIME
 
     def wolves_eat_sheep(self):
+        """
+        Algorithm for wolves' sheep consumption. They consume sheep when in the same patch.
+        :return:
+        """
         sheep_locs = np.int64(self.sheep_pos)
         for idx in np.where(self.wolf_alive)[0]:
             x = int(self.wolf_pos[idx][0])
@@ -303,6 +355,10 @@ class WolfSheepGrassModel:
             self.num_sheep -= 1
 
     def sheep_die(self):
+        """
+        Death algorithm for sheep who have run out of energy.
+        :return:
+        """
         np.logical_and(self.sheep_alive, self.sheep_energy >= 0.0, out=self.sheep_alive)
         self.num_sheep = int(np.sum(self.sheep_alive))
         live_sheep = np.where(self.sheep_alive)[0]
@@ -312,6 +368,10 @@ class WolfSheepGrassModel:
             self.sheep_pointer = live_sheep[-1] + 1
 
     def kill_random_sheep(self):
+        """
+        Kill a randomly selected sheep, if there are any. Throws a `RuntimeError` if there are no sheep left.
+        :return:
+        """
         if self.num_sheep > 0:
             sheep_idx = np.random.choice(np.where(self.sheep_alive)[0])
             self.sheep_alive[sheep_idx] = False
@@ -320,6 +380,10 @@ class WolfSheepGrassModel:
             raise RuntimeError("No sheep to kill")
 
     def wolves_die(self):
+        """
+        Death algorithm for wolves who have run out of energy.
+        :return:
+        """
         np.logical_and(self.wolf_alive, self.wolf_energy >= 0.0, out=self.wolf_alive)
         self.num_wolves = int(np.sum(self.wolf_alive))
         live_wolves = np.where(self.wolf_alive)[0]
@@ -329,6 +393,10 @@ class WolfSheepGrassModel:
             self.wolf_pointer = live_wolves[-1] + 1
 
     def kill_random_wolf(self):
+        """
+        Kill a randomly selected wolf, if there are any. Throws a `RuntimeError` if there are no wolves left.
+        :return:
+        """
         if self.num_wolves > 0:
             wolf_idx = np.random.choice(np.where(self.wolf_alive)[0])
             self.wolf_alive[wolf_idx] = False
@@ -337,6 +405,10 @@ class WolfSheepGrassModel:
             raise RuntimeError("No wolves to kill")
 
     def sheep_reproduce(self):
+        """
+        Reproduction algorithm for sheep.
+        :return:
+        """
         reproduce = np.logical_and(
             self.sheep_alive,
             np.random.rand(self.MAX_SHEEP) < self.SHEEP_REPRODUCE / 100.0,
@@ -349,6 +421,10 @@ class WolfSheepGrassModel:
             self.create_sheep(pos=reproducing_sheep_pos[idx], energy=reproducing_sheep_energy[idx])
 
     def wolves_reproduce(self):
+        """
+        Reproduction algorithm for wolves.
+        :return:
+        """
         reproduce = np.logical_and(
             self.wolf_alive,
             np.random.rand(self.MAX_WOLVES) < self.WOLF_REPRODUCE / 100.0,
@@ -361,11 +437,19 @@ class WolfSheepGrassModel:
             self.create_wolf(pos=reproducing_wolf_pos[idx], energy=reproducing_wolf_energy[idx])
 
     def grow_grass(self):
+        """
+        Regrowth algorithm for grass.
+        :return:
+        """
         self.grass_clock -= 1
         self.grass_clock[self.grass] = 0
         self.grass[:] = self.grass_clock <= 0
 
     def spawn_grass(self):
+        """
+        Randomly select a dead grass patch to make alive. Throws `RuntimeError` if there isn't room.
+        :return:
+        """
         non_grass_rows, non_grass_cols = np.where(np.logical_not(self.grass))
         if len(non_grass_rows) > 0:
             r = np.random.randint(len(non_grass_rows))
@@ -376,6 +460,10 @@ class WolfSheepGrassModel:
             raise RuntimeError("No room for more grass")
 
     def kill_random_grass(self):
+        """
+        Kills a randomly selected grass patch. Throws a `RuntimeError` if there isn't any live grass to kill.
+        :return:
+        """
         grass_rows, grass_cols = np.where(self.grass)
         if len(grass_rows) > 0:
             r = np.random.randint(len(grass_rows))
@@ -386,6 +474,10 @@ class WolfSheepGrassModel:
             raise RuntimeError("No grass to kill")
 
     def time_step(self):
+        """
+        Advance model time one tick.
+        :return:
+        """
         # sheep
         self.sheep_move()
         self.sheep_energy -= 1.0  # self.sheep metabolism

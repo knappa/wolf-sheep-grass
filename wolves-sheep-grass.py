@@ -118,8 +118,8 @@ def main():
             tick += 1
 
             if tick % 100 == 0:
-                model.compact_sheep_arrays()
-                model.compact_wolf_arrays()
+                model._compact_sheep_arrays()
+                model._compact_wolf_arrays()
 
             print(
                 f"{tick},"

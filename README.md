@@ -31,3 +31,4 @@ The model is advanced forward in time using `model.time_step()`. Classic usage w
 * `model.wolf_energy` / `model.sheep_energy`
 
 each of which should be masked by the boolean arrays `model.wolf_alive` or `model.sheep_alive`.
+That is, arrays such as `model.wolf_pos` are fixed length, (mostly) independent of the number of wolves and contain meaningless entries. To get only the meaningful entries, use `model.wolf_pos[model.wolf_alive]`. 

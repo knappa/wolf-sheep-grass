@@ -4,7 +4,6 @@ import argparse
 import sys
 
 import numpy as np
-
 from wolf_sheep_grass import WolfSheepGrassModel
 
 
@@ -12,9 +11,7 @@ def main():
     # get command line arguments
     parser = argparse.ArgumentParser(description="Wolf sheep grass simulator")
 
-    parser.add_argument(
-        "-o", "--output_file", help="output for csv data", type=str, default="-"
-    )
+    parser.add_argument("-o", "--output_file", help="output for csv data", type=str, default="-")
     parser.add_argument(
         "-mt",
         "--maximum_time",
@@ -23,15 +20,9 @@ def main():
         default=float("inf"),
     )
     parser.add_argument("-gw", "--grid_width", type=int, help="grid width", default=51)
-    parser.add_argument(
-        "-gh", "--grid_height", type=int, help="grid height", default=51
-    )
-    parser.add_argument(
-        "-iw", "--init_wolves", type=int, help="init number of wolves", default=50
-    )
-    parser.add_argument(
-        "-is", "--init_sheep", type=int, help="init number of sheep", default=100
-    )
+    parser.add_argument("-gh", "--grid_height", type=int, help="grid height", default=51)
+    parser.add_argument("-iw", "--init_wolves", type=int, help="init number of wolves", default=50)
+    parser.add_argument("-is", "--init_sheep", type=int, help="init number of sheep", default=100)
     parser.add_argument(
         "-wgf",
         "--wolf_gain_from_food",
@@ -46,9 +37,7 @@ def main():
         help="sheep gain from food",
         default=4.0,
     )
-    parser.add_argument(
-        "-wrep", "--wolf_reproduce", type=float, help="wolf reproduce", default=5.0
-    )
+    parser.add_argument("-wrep", "--wolf_reproduce", type=float, help="wolf reproduce", default=5.0)
     parser.add_argument(
         "-srep", "--sheep_reproduce", type=float, help="sheep reproduce", default=4.0
     )
@@ -92,12 +81,15 @@ def main():
     # run the simulator
     try:
         tick = 0
-        print(f"time, "
-              "number of wolves, "
-              "wolf mean energy, wolf var energy, "
-              "number of sheep, "
-              "sheep mean energy, sheep var energy, "
-              "number of grass", file=file)
+        print(
+            f"time, "
+            "number of wolves, "
+            "wolf mean energy, wolf var energy, "
+            "number of sheep, "
+            "sheep mean energy, sheep var energy, "
+            "number of grass",
+            file=file,
+        )
         print(
             f"{tick},"
             f"{model.num_wolves},"
@@ -109,9 +101,7 @@ def main():
         )
 
         while (
-            tick < args.maximum_time
-            and model.num_wolves > 0
-            and model.num_sheep < model.MAX_SHEEP
+            tick < args.maximum_time and model.num_wolves > 0 and model.num_sheep < model.MAX_SHEEP
         ):
             model.time_step()
 

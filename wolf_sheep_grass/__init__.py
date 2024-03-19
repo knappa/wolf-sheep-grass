@@ -10,6 +10,7 @@ class WolfSheepGrassModel:
     MAX_WOLVES: int = field(default=1_000)
     MAX_SHEEP: int = field(default=1_000)
     EXPAND_ARRAYS: bool = field(default=True)
+    SOFTCAP_AGENT_NUM_AT_GRID_SIZE: bool = field(default=False)
 
     INIT_WOLVES: int = field()  # 0..250
     WOLF_GAIN_FROM_FOOD: float = field()  # 0..100
@@ -162,13 +163,20 @@ class WolfSheepGrassModel:
 
     def create_wolf(self, pos=None, energy=None):
         """
-        Create a new wolf.
+        Create a new wolf. Can be a silent noop if we have more wolves than grid cells and
+        SOFTCAP_AGENT_NUM_AT_GRID_SIZE is set.
 
         :param pos: position of wolf (2-dimensional, validity is unchecked),
             if not present a random position is chosen
         :param energy: energy of wolf, if not present a random energy is chosen
         :return:
         """
+        if (
+            self.num_wolves > self.GRID_WIDTH * self.GRID_HEIGHT
+            and self.SOFTCAP_AGENT_NUM_AT_GRID_SIZE
+        ):
+            return
+
         if self.wolf_pointer >= self.MAX_WOLVES:
             self._compact_wolf_arrays()
             # maybe the array is already compacted:
@@ -228,13 +236,20 @@ class WolfSheepGrassModel:
 
     def create_sheep(self, pos=None, energy=None):
         """
-        Create a new sheep.
+        Create a new sheep. Can be a silent noop if we have more sheep than grid cells and
+        SOFTCAP_AGENT_NUM_AT_GRID_SIZE is set.
 
         :param pos: position of sheep (2-dimensional, validity is unchecked),
             if not present a random position is chosen
         :param energy: energy of sheep, if not present a random energy is chosen
         :return:
         """
+        if (
+            self.num_sheep > self.GRID_WIDTH * self.GRID_HEIGHT
+            and self.SOFTCAP_AGENT_NUM_AT_GRID_SIZE
+        ):
+            return
+
         if self.sheep_pointer >= self.MAX_SHEEP:
             self._compact_sheep_arrays()
             # maybe the array is already compacted:

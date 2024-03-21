@@ -233,6 +233,8 @@ class WolfSheepGrassModel:
             mode="constant",
             constant_values=False,
         )
+        import gc
+        gc.collect(generation=2)
 
     def create_sheep(self, pos=None, energy=None):
         """
@@ -306,6 +308,8 @@ class WolfSheepGrassModel:
             mode="constant",
             constant_values=False,
         )
+        import gc
+        gc.collect(generation=2)
 
     def sheep_move(self):
         """

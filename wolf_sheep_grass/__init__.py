@@ -10,6 +10,7 @@ class WolfSheepGrassModel:
     MAX_WOLVES: int = field(default=1_000)
     MAX_SHEEP: int = field(default=1_000)
     EXPAND_ARRAYS: bool = field(default=True)
+    CONTRACT_ARRAYS: bool = field(default=False)
     SOFTCAP_AGENT_NUM_AT_GRID_SIZE: bool = field(default=False)
 
     INIT_WOLVES: int = field()  # 0..250
@@ -146,6 +147,14 @@ class WolfSheepGrassModel:
         self.wolf_alive[: self.num_wolves] = True
         self.wolf_alive[self.num_wolves :] = False
         self.wolf_pointer = self.num_wolves
+        # if the size of arrays has really gotten out of hand, contract them
+        if self.CONTRACT_ARRAYS and 100 < self.num_wolves < self.MAX_WOLVES // 4:
+            new_size = self.wolf_pos.shape[0] // 2
+            self.wolf_pos = self.wolf_pos[:new_size].copy()
+            self.wolf_dir = self.wolf_dir[:new_size].copy()
+            self.wolf_energy = self.wolf_energy[:new_size].copy()
+            self.wolf_alive = self.wolf_alive[:new_size].copy()
+            self.MAX_WOLVES = new_size
 
     def _compact_sheep_arrays(self):
         """
@@ -160,6 +169,14 @@ class WolfSheepGrassModel:
         self.sheep_alive[: self.num_sheep] = True
         self.sheep_alive[self.num_sheep :] = False
         self.sheep_pointer = self.num_sheep
+        # if the size of arrays has really gotten out of hand, contract them
+        if self.CONTRACT_ARRAYS and 100 < self.num_sheep < self.MAX_SHEEP // 4:
+            new_size = self.sheep_pos.shape[0] // 2
+            self.sheep_pos = self.sheep_pos[:new_size].copy()
+            self.sheep_dir = self.sheep_dir[:new_size].copy()
+            self.sheep_energy = self.sheep_energy[:new_size].copy()
+            self.sheep_alive = self.sheep_alive[:new_size].copy()
+            self.MAX_SHEEP = new_size
 
     def create_wolf(self, pos=None, energy=None):
         """
@@ -207,33 +224,35 @@ class WolfSheepGrassModel:
         :return:
         """
         old_max_wolves = self.MAX_WOLVES
-        self.MAX_WOLVES *= 2
+        self.MAX_WOLVES = int(1.5 * self.MAX_WOLVES)
+        new_wolf_slots = self.MAX_WOLVES - old_max_wolves
 
         self.wolf_pos = np.pad(
             self.wolf_pos,
-            pad_width=np.array(((0, old_max_wolves), (0, 0))),
+            pad_width=np.array(((0, new_wolf_slots), (0, 0))),
             mode="constant",
             constant_values=(0, 0),
         )
         self.wolf_dir = np.pad(
             self.wolf_dir,
-            pad_width=np.array((0, old_max_wolves)),
+            pad_width=np.array((0, new_wolf_slots)),
             mode="constant",
             constant_values=0.0,
         )
         self.wolf_energy = np.pad(
             self.wolf_energy,
-            pad_width=np.array((0, old_max_wolves)),
+            pad_width=np.array((0, new_wolf_slots)),
             mode="constant",
             constant_values=0,
         )
         self.wolf_alive = np.pad(
             self.wolf_alive,
-            pad_width=np.array((0, old_max_wolves)),
+            pad_width=np.array((0, new_wolf_slots)),
             mode="constant",
             constant_values=False,
         )
         import gc
+
         gc.collect(generation=2)
 
     def create_sheep(self, pos=None, energy=None):
@@ -282,33 +301,35 @@ class WolfSheepGrassModel:
         :return:
         """
         old_max_sheep = self.MAX_SHEEP
-        self.MAX_SHEEP *= 2
+        self.MAX_SHEEP = int(1.5 * self.MAX_SHEEP)
+        new_sheep_slots = self.MAX_SHEEP - old_max_sheep
 
         self.sheep_pos = np.pad(
             self.sheep_pos,
-            pad_width=np.array(((0, old_max_sheep), (0, 0))),
+            pad_width=np.array(((0, new_sheep_slots), (0, 0))),
             mode="constant",
             constant_values=(0, 0),
         )
         self.sheep_dir = np.pad(
             self.sheep_dir,
-            pad_width=np.array((0, old_max_sheep)),
+            pad_width=np.array((0, new_sheep_slots)),
             mode="constant",
             constant_values=0.0,
         )
         self.sheep_energy = np.pad(
             self.sheep_energy,
-            pad_width=np.array((0, old_max_sheep)),
+            pad_width=np.array((0, new_sheep_slots)),
             mode="constant",
             constant_values=0,
         )
         self.sheep_alive = np.pad(
             self.sheep_alive,
-            pad_width=np.array((0, old_max_sheep)),
+            pad_width=np.array((0, new_sheep_slots)),
             mode="constant",
             constant_values=False,
         )
         import gc
+
         gc.collect(generation=2)
 
     def sheep_move(self):
